@@ -72,7 +72,7 @@ const Login = () => {
         
         <div className="mt-8 pt-6 border-t border-border">
           <h3 className="text-lg font-medium text-primary-dark mb-2">Test Accounts</h3>
-          <p className="text-sm mb-2">All accounts use password: <strong>password123</strong></p>
+          <p className="text-sm mb-2">All accounts use password: <strong>password</strong></p>
           <ul className="text-sm space-y-1">
             <li>admin@acme.test (Admin, Acme)</li>
             <li>user@acme.test (Member, Acme)</li>

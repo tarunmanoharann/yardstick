@@ -39,10 +39,18 @@ const Dashboard = () => {
   // Create note
   const handleCreateNote = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!title.trim() || !content.trim()) {
+      setError('Both title and content are required');
+      return;
+    }
+
     try {
-      await noteService.createNote({ title, content });
+      await noteService.createNote({ title: title.trim(), content: content.trim() });
       setTitle('');
       setContent('');
+      setError('');
       fetchNotes();
     } catch (err) {
       if (err.response?.data?.limitReached) {
@@ -54,6 +62,10 @@ const Dashboard = () => {
 
   // Delete note
   const handleDeleteNote = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return;
+    }
+
     try {
       await noteService.deleteNote(id);
       fetchNotes();
@@ -76,218 +88,267 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-card border border-yellow-100">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-8 pb-4 border-b-2 border-yellow-200">
-        <div>
-          <h2 className="text-3xl font-bold text-amber-800 mb-1">Welcome back!</h2>
-          <p className="text-amber-600">{user?.email}</p>
-        </div>
-        <div className="text-right bg-amber-50 p-4 rounded-lg border border-amber-200">
-          <p className="mb-2 text-gray-700">
-            <span className="text-sm text-amber-600">Tenant:</span> 
-            <span className="font-semibold text-amber-800 ml-1">{user?.tenant.name}</span>
-          </p>
-          <p className="mb-2 text-gray-700">
-            <span className="text-sm text-amber-600">Plan:</span> 
-            <span className={`font-semibold ml-1 px-2 py-1 rounded text-xs ${
-              isProPlan ? 'bg-amber-500 text-white' : 'bg-yellow-200 text-amber-800'
-            }`}>
-              {isProPlan ? 'Pro' : 'Free'}
-            </span>
-          </p>
-          {!isProPlan && (
-            <p className="text-red-600 font-medium">
-              <span className="text-sm text-amber-600">Notes:</span> {noteCount}/3 
-              {limitReached && <span className="ml-1 text-red-500">(Limit Reached)</span>}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Status Messages */}
-      {upgradeMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6 shadow-sm">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            {upgradeMessage}
-          </div>
-        </div>
-      )}
-      
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6 shadow-sm">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            {error}
-          </div>
-        </div>
-      )}
-
-      {/* Upgrade to Pro section (Admin only) */}
-      {isAdmin && !isProPlan && (
-        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl mb-8 border-l-4 border-amber-400 shadow-sm">
-          <div className="flex items-start justify-between">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-8">
+          <div className="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
             <div>
-              <h3 className="text-xl font-semibold text-amber-800 mb-2 flex items-center">
-                <svg className="w-6 h-6 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Upgrade to Pro
-              </h3>
-              <p className="text-amber-700 mb-4">Unlock unlimited notes and premium features for your team.</p>
-              <button 
-                onClick={handleUpgradeToPro}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
-              >
-                Upgrade Now
-              </button>
+              <h1 className="text-4xl font-bold text-slate-800 mb-2">Dashboard</h1>
+              <p className="text-slate-600 text-lg">Welcome back, {user?.email}</p>
             </div>
-            <div className="text-amber-500">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create Note Form */}
-      <div className="mb-8">
-        <h3 className="text-2xl font-semibold text-amber-800 mb-6 flex items-center">
-          <svg className="w-6 h-6 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Create New Note
-        </h3>
-        
-        {limitReached && !isProPlan ? (
-          <div className="bg-yellow-50 border border-yellow-300 p-6 rounded-xl mb-6 shadow-sm">
-            <div className="flex items-start">
-              <svg className="w-6 h-6 text-yellow-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <div>
-                <p className="text-yellow-800 font-medium mb-2">Free Plan Limit Reached</p>
-                <p className="text-yellow-700 mb-4">You've reached the maximum of 3 notes for the Free plan.</p>
-                {isAdmin ? (
-                  <button 
-                    onClick={handleUpgradeToPro}
-                    className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Upgrade to Pro
-                  </button>
-                ) : (
-                  <p className="text-yellow-700 italic">Please ask your admin to upgrade to the Pro plan.</p>
+            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-200">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-600">Organization</span>
+                  <span className="font-semibold text-slate-800">{user?.tenant.name}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-600">Plan</span>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    isProPlan 
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' 
+                      : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {isProPlan ? '✦ Pro' : 'Free'}
+                  </span>
+                </div>
+                {!isProPlan && (
+                  <div className="flex items-center justify-between pt-2 border-t border-indigo-200">
+                    <span className="text-sm font-medium text-slate-600">Usage</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-semibold text-slate-800">{noteCount}/3</span>
+                      {limitReached && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          Limit Reached
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           </div>
-        ) : (
-          <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm">
-            <form onSubmit={handleCreateNote} className="space-y-6">
-              <div>
-                <label htmlFor="title" className="block mb-2 font-medium text-amber-800">Note Title</label>
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  placeholder="Enter a descriptive title..."
-                  className="w-full p-3 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white transition-colors"
-                />
-              </div>
-              <div>
-                <label htmlFor="content" className="block mb-2 font-medium text-amber-800">Note Content</label>
-                <textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  placeholder="Write your note content here..."
-                  rows="4"
-                  className="w-full p-3 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white transition-colors resize-vertical"
-                />
-              </div>
-              <button 
-                type="submit"
-                className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+        </div>
+
+        {/* Status Messages */}
+        {upgradeMessage && (
+          <div className="bg-emerald-50 border-l-4 border-emerald-400 p-6 rounded-r-xl mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Create Note
-              </button>
-            </form>
+              </div>
+              <div className="ml-4">
+                <p className="text-emerald-800 font-medium">{upgradeMessage}</p>
+              </div>
+            </div>
           </div>
         )}
-      </div>
-
-      {/* Notes List */}
-      <div>
-        <h3 className="text-2xl font-semibold text-amber-800 mb-6 flex items-center justify-between">
-          <span className="flex items-center">
-            <svg className="w-6 h-6 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            Your Notes
-          </span>
-          <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-            {notes.length} {notes.length === 1 ? 'note' : 'notes'}
-          </span>
-        </h3>
         
-        {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
-            <p className="text-amber-600 ml-3">Loading your notes...</p>
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-xl mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-red-800 font-medium">{error}</p>
+              </div>
+            </div>
           </div>
-        ) : notes.length === 0 ? (
-          <div className="text-center py-12 bg-amber-50 rounded-xl border border-amber-200">
-            <svg className="w-16 h-16 text-amber-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="text-amber-600 text-lg mb-2">No notes yet</p>
-            <p className="text-amber-500">Create your first note using the form above.</p>
+        )}
+
+        {/* Upgrade to Pro section (Admin only) */}
+        {isAdmin && !isProPlan && (
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 mb-8 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center mb-4">
+                  <svg className="w-8 h-8 mr-3 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <h3 className="text-2xl font-bold">Upgrade to Pro</h3>
+                </div>
+                <p className="text-indigo-100 mb-6 text-lg">Unlock unlimited notes, advanced collaboration features, and priority support for your entire team.</p>
+                <button 
+                  onClick={handleUpgradeToPro}
+                  className="bg-white text-indigo-600 font-semibold py-3 px-8 rounded-xl"
+                >
+                  Upgrade Now
+                </button>
+              </div>
+              <div className="hidden lg:block text-indigo-200 opacity-30">
+                <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {notes.map((note) => (
-              <div key={note._id} className="bg-white p-6 rounded-xl shadow-md border border-amber-100 hover:shadow-lg hover:border-amber-200 transition-all duration-200 transform hover:scale-105">
-                <div className="flex items-start justify-between mb-3">
-                  <h4 className="text-lg font-semibold text-amber-800 leading-tight">{note.title}</h4>
-                  <svg className="w-5 h-5 text-amber-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        )}
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Create Note Form */}
+          <div className="xl:col-span-1">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 sticky top-6">
+              <div className="flex items-center mb-6">
+                <div className="bg-indigo-100 p-2 rounded-lg mr-3">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <p className="text-gray-700 mb-4 line-clamp-3 leading-relaxed">{note.content}</p>
-                <div className="flex justify-between items-center pt-4 border-t border-amber-100">
-                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
-                    {new Date(note.createdAt).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      year: 'numeric' 
-                    })}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteNote(note._id)}
-                    className="bg-red-500 hover:bg-red-600 text-white text-sm py-1.5 px-3 rounded-lg transition-colors flex items-center"
+                <h2 className="text-2xl font-bold text-slate-800">Create Note</h2>
+              </div>
+              
+              {limitReached && !isProPlan ? (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-6 rounded-xl">
+                  <div className="flex items-start">
+                    <div className="bg-amber-100 p-2 rounded-lg mr-4">
+                      <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-amber-800 mb-2">Plan Limit Reached</h4>
+                      <p className="text-amber-700 mb-4">You've reached your free plan limit of 3 notes. Upgrade to Pro for unlimited notes.</p>
+                      {isAdmin && (
+                        <button 
+                          onClick={handleUpgradeToPro}
+                          className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold py-2 px-6 rounded-lg"
+                        >
+                          Upgrade to Pro
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-3">Note Title</label>
+                    <input
+                      type="text"
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Enter a descriptive title..."
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-slate-800 placeholder-slate-400"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="content" className="block text-sm font-semibold text-slate-700 mb-3">Note Content</label>
+                    <textarea
+                      id="content"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your note content here..."
+                      rows={6}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white resize-none text-slate-800 placeholder-slate-400"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleCreateNote}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center"
                   >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Delete
+                    Create Note
                   </button>
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Notes List */}
+          <div className="xl:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="bg-slate-100 p-2 rounded-lg mr-3">
+                  <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">Your Notes</h2>
+              </div>
+              <div className="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full font-semibold">
+                {notes.length} {notes.length === 1 ? 'note' : 'notes'}
+              </div>
+            </div>
+            
+            {isLoading ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-12">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+                  <p className="text-slate-600 mt-4 font-medium">Loading your notes...</p>
+                </div>
+              </div>
+            ) : notes.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-12">
+                <div className="text-center">
+                  <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No notes yet</h3>
+                  <p className="text-slate-500">Create your first note to get started organizing your thoughts.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {notes.map((note, index) => (
+                  <div 
+                    key={note._id} 
+                    className="bg-white rounded-2xl border border-slate-200"
+                  >
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">
+                            {note.title}
+                          </h3>
+                          <p className="text-slate-600 leading-relaxed line-clamp-3">{note.content}</p>
+                        </div>
+                        <div className="ml-4 flex-shrink-0">
+                          <div className="bg-indigo-50 p-2 rounded-lg">
+                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-4 border-t border-slate-200">
+                        <div className="flex items-center text-sm text-slate-500">
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {new Date(note.createdAt).toLocaleDateString('en-US', { 
+                            month: 'long', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteNote(note._id)}
+                          className="bg-red-50 text-red-600 py-2 px-4 rounded-lg flex items-center font-medium"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
