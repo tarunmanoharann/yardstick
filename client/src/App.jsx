@@ -20,6 +20,7 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             } 
+            
           />
         </Routes>
       </main>
