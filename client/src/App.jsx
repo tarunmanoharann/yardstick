@@ -24,7 +24,7 @@ function App() {
         </Routes>
       </main>
       
-      {/* Professional Background Pattern */}
+    
       <div className="fixed inset-0 -z-10 opacity-[0.03]">
         {/* Grid Pattern */}
         <div 
