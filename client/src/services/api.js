@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Remove /api from the base URL since routes no longer have /api prefix
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
