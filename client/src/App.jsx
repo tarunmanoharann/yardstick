@@ -11,7 +11,7 @@ function App() {
       <Navigation />
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/dashboard" 
@@ -20,7 +20,7 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             } 
-            
+
           />
         </Routes>
       </main>
