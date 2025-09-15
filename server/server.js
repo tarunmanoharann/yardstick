@@ -14,7 +14,7 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: [
-    'https://your-frontend-domain.vercel.app', // Replace with your actual frontend URL
+    'https://yardstick-three.vercel.app', // Replace with your actual frontend URL
     'http://localhost:3000',
     'http://localhost:5173'
   ],
