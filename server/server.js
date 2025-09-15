@@ -12,7 +12,14 @@ const tenantsRoutes = require('./routes/tenants');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://your-frontend-domain.vercel.app', // Replace with your actual frontend URL
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -49,10 +56,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error', message: err.message });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// For Vercel serverless deployment
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
-module.exports = app; // For testing and serverless functions
+module.exports = app;
