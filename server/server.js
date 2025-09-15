@@ -34,12 +34,12 @@ const connectDB = async () => {
 connectDB();
 
 
-app.use('/auth', authRoutes);
-app.use('/notes', notesRoutes);
-app.use('/tenants', tenantsRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/notes', notesRoutes);
+app.use('/api/tenants', tenantsRoutes);
 
 
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 

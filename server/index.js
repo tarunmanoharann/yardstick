@@ -20,9 +20,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/auth', authRoutes);
-app.use('/notes', noteRoutes);
-app.use('/tenants', tenantRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api/tenants', tenantRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
