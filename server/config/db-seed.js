@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 
-// Connect to MongoDB
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
@@ -11,7 +11,6 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-// Seed data
 const tenants = [
   {
     name: 'Acme',
@@ -52,26 +51,25 @@ const users = [
   }
 ];
 
-// Seed function
 async function seedDatabase() {
   try {
-    // Clear existing data
+    
     await Tenant.deleteMany({});
     await User.deleteMany({});
     
     console.log('Cleared existing data');
     
-    // Create tenants
+    
     const createdTenants = await Tenant.insertMany(tenants);
     console.log('Tenants created:', createdTenants.map(t => t.name));
     
-    // Create tenant map for easy lookup
+    
     const tenantMap = {};
     createdTenants.forEach(tenant => {
       tenantMap[tenant.slug] = tenant._id;
     });
     
-    // Create users with tenant IDs
+  
     const userPromises = users.map(async (userData) => {
       const user = new User({
         email: userData.email,
@@ -94,5 +92,5 @@ async function seedDatabase() {
   }
 }
 
-// Run the seed function
+
 seedDatabase();

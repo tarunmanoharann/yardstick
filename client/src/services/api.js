@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -10,7 +9,6 @@ const api = axios.create({
   }
 });
 
-// Add token to requests if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,7 +20,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Auth services
+
 export const authService = {
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
@@ -45,7 +43,6 @@ export const authService = {
   }
 };
 
-// Notes services
 export const noteService = {
   getAllNotes: async () => {
     return await api.get('/notes');
@@ -64,7 +61,6 @@ export const noteService = {
   }
 };
 
-// Tenant services
 export const tenantService = {
   upgradeToPro: async (slug) => {
     return await api.post(`/tenants/${slug}/upgrade`);

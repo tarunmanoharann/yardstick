@@ -41,7 +41,7 @@ function App() {
           }}
         />
         
-        {/* Subtle Dot Pattern */}
+    
         <div 
           className="absolute inset-0" 
           style={{
@@ -50,22 +50,22 @@ function App() {
           }}
         />
         
-        {/* Gradient Overlay */}
+    
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.02] via-transparent to-purple-500/[0.02]" />
       </div>
       
-      {/* Floating Elements for Professional Feel */}
+    
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Top Left Gradient Orb */}
+        
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/10 to-blue-500/10 rounded-full blur-3xl" />
         
-        {/* Top Right Gradient Orb */}
+  
         <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-purple-400/10 to-indigo-500/10 rounded-full blur-3xl" />
         
-        {/* Bottom Left Gradient Orb */}
+        
         <div className="absolute -bottom-40 -left-20 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 rounded-full blur-3xl" />
         
-        {/* Bottom Right Gradient Orb */}
+        
         <div className="absolute -bottom-20 -right-40 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 rounded-full blur-3xl" />
       </div>
     </div>

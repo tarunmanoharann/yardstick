@@ -15,7 +15,7 @@ const Dashboard = () => {
   const [limitReached, setLimitReached] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState('');
 
-  // Fetch notes
+  
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
@@ -36,11 +36,11 @@ const Dashboard = () => {
     fetchNotes();
   }, []);
 
-  // Create note
+  
   const handleCreateNote = async (e) => {
     e.preventDefault();
     
-    // Basic validation
+    
     if (!title.trim() || !content.trim()) {
       setError('Both title and content are required');
       return;
@@ -60,7 +60,7 @@ const Dashboard = () => {
     }
   };
 
-  // Delete note
+
   const handleDeleteNote = async (id) => {
     if (!window.confirm('Are you sure you want to delete this note?')) {
       return;
@@ -74,7 +74,7 @@ const Dashboard = () => {
     }
   };
 
-  // Upgrade to Pro
+  
   const handleUpgradeToPro = async () => {
     try {
       setUpgradeMessage('');
@@ -90,7 +90,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header Section */}
+      
         <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-8">
           <div className="flex justify-between items-center mb-6 pb-6 border-b border-slate-200">
             <div>
@@ -131,7 +131,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Status Messages */}
+      
         {upgradeMessage && (
           <div className="bg-emerald-50 border-l-4 border-emerald-400 p-6 rounded-r-xl mb-6">
             <div className="flex items-center">
@@ -162,7 +162,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Upgrade to Pro section (Admin only) */}
+      
         {isAdmin && !isProPlan && (
           <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 mb-8 text-white">
             <div className="flex items-center justify-between">
@@ -191,7 +191,6 @@ const Dashboard = () => {
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Create Note Form */}
           <div className="xl:col-span-1">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 sticky top-6">
               <div className="flex items-center mb-6">
@@ -263,7 +262,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Notes List */}
+      
           <div className="xl:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">

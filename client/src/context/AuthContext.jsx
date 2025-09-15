@@ -9,18 +9,15 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in
     const initAuth = async () => {
       try {
         const currentUser = authService.getCurrentUser();
         if (currentUser) {
-          // Verify token is still valid by fetching profile
           const response = await authService.getProfile();
           setUser(response.data.user);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
-        // If token is invalid, log out
         authService.logout();
       } finally {
         setLoading(false);
